@@ -1,0 +1,12 @@
+# Raw data
+/data/raw/
+# Build artifacts
+*.o
+*.out
+*.exe
+# Python artifacts
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+# macOS system files
+.DS_Store
