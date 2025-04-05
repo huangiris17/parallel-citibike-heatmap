@@ -12,7 +12,10 @@ preprocess:
 
 # Build C++ code (delegate to cpp/Makefile)
 build:
-	$(MAKE) -C cpp
+	g++-14 -std=c++17 -fopenmp cpp/aggregation.cpp -o aggregation
+
+run:
+	./aggregation
 
 # Clean C++ build artifacts
 clean:
