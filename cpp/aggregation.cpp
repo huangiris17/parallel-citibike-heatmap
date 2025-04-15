@@ -52,6 +52,7 @@ std::unordered_map<std::string, int> countTripSequential(std::vector<Trip> tripV
 
 std::unordered_map<std::string, int> countTripParallel(std::vector<Trip> tripVec) {
     int nThreads = omp_get_max_threads();
+    std::cout << "Number of threads used: " << nThreads << std::endl;
     std::vector<std::unordered_map<std::string, int>> countMapLocal(nThreads);
     std::unordered_map<std::string, int> countMap;
 
