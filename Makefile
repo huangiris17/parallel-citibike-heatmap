@@ -25,3 +25,6 @@ visualize:
 # Render the heatmap html
 open:
 	open nyc_citibike_heatmap.html
+
+# Run all commands together
+all: setup preprocess build run visualize open
