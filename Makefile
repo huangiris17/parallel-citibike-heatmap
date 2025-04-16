@@ -25,7 +25,3 @@ visualize:
 # Render the heatmap html
 open:
 	open nyc_citibike_heatmap.html
-
-# Clean C++ build artifacts
-clean:
-	$(MAKE) -C cpp clean
