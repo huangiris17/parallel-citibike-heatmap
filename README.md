@@ -1,11 +1,11 @@
 # NYC Citi Bike Heatmap
 
-This project processes and visualizes NYC Citi Bike trip data. It includes data preprocessing with Python, data aggregation using C++ with OpenMP, and final visualization as an interactive heatmap.
+This project processes and visualizes [2024 NYC Citi Bike trip data]((https://citibikenyc.com/system-data)). It includes data preprocessing with Python, data aggregation using C++ with OpenMP, and final visualization as an interactive heatmap.
 
 ## Project Structure
 
 - `scripts/preprocess.py`: Preprocesses raw Citi Bike data
-- `cpp/aggregation.cpp`: Aggregates trip data in parallel using OpenMP
+- `cpp/aggregation.cpp`: Aggregates trip data in sequential/parallel using OpenMP
 - `scripts/visualize.py`: Generates a heatmap from aggregated data
 - `nyc_citibike_heatmap.html`: Output HTML file for visualization
 
