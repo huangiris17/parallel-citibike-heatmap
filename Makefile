@@ -14,16 +14,18 @@ preprocess:
 build:
 	g++-14 -std=c++17 -fopenmp cpp/aggregation.cpp -o aggregation
 
+# Run the C++ aggregation code
 run:
 	./aggregation
 
+# Visualize the data in a heatmap
 visualize:
 	source .venv/bin/activate && python3 scripts/visualize.py
+
+# Render the heatmap html
+open:
+	open nyc_citibike_heatmap.html
 
 # Clean C++ build artifacts
 clean:
 	$(MAKE) -C cpp clean
-
-# Full pipeline: preprocess -> build -> run
-# run: preprocess build
-# 	./cpp/bin/bike_analysis
