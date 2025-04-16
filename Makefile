@@ -17,6 +17,9 @@ build:
 run:
 	./aggregation
 
+visualize:
+	source .venv/bin/activate && python3 scripts/visualize.py
+
 # Clean C++ build artifacts
 clean:
 	$(MAKE) -C cpp clean

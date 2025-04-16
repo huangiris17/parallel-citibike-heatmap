@@ -1,5 +1,5 @@
 # Raw data
-/data/raw/
+/data/
 # Build artifacts
 *.o
 *.out
@@ -10,3 +10,4 @@ __pycache__/
 *.pyc
 # macOS system files
 .DS_Store
+.vscode/
