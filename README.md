@@ -15,6 +15,14 @@ This project processes and visualizes [2024 NYC Citi Bike trip data](https://cit
 - C++ compiler with OpenMP support (e.g., `g++-14`)
 - macOS (for `open` command, or modify accordingly for other OS)
 
+## Run the project
+
+Run all commands together:
+
+```bash
+make all
+```
+
 ## Setup
 
 Create a Python virtual environment and install dependencies:
