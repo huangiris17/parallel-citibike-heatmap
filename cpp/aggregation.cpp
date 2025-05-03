@@ -59,18 +59,31 @@ std::unordered_map<std::string, int> countTripParallel(std::vector<Trip> tripVec
     #pragma omp parallel
     {
         int threadID = omp_get_thread_num();
-        auto& local_map = countMapLocal[threadID];
+        auto& localMap = countMapLocal[threadID];
 
         #pragma omp for
         for (int i = 0; i < tripVec.size(); i++) {
             std::string key = tripVec[i].hour + "-" + tripVec[i].station_id;
-            local_map[key]++;
+            localMap[key]++;
         }
     }
 
-    for (const auto& localMap: countMapLocal) {
-        for (const auto& [key, count]: localMap) {
-            countMap[key] += count;
+    #pragma omp parallel
+    {
+        std::unordered_map<std::string, int> localMerge;
+
+        #pragma omp for nowait
+        for (int i = 0; i < countMapLocal.size(); ++i) {
+            for (const auto& [key, count] : countMapLocal[i]) {
+                localMerge[key] += count;
+            }
+        }
+
+        #pragma omp critical
+        {
+            for (const auto& [key, count] : localMerge) {
+                countMap[key] += count;
+            }
         }
     }
 
