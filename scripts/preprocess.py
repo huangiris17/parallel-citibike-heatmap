@@ -6,10 +6,17 @@ csv_files = glob.glob("data/raw/*.csv")
 
 df_list = []
 for file in csv_files:
-    df = pd.read_csv(file, parse_dates=["started_at"])
+    df = pd.read_csv(file,
+        parse_dates=["started_at"],
+        dtype={
+            "start_station_id": str,
+            "end_station_id": str
+        },
+    low_memory=False)
     df = df.dropna(subset=["start_station_id", "start_lat", "start_lng", "started_at"])
     df["hour"] = df["started_at"].dt.hour
     df_list.append(df)
+    print(f"Loaded {len(df)} records from: {file}")
 
 df_combined = pd.concat(df_list, ignore_index=True)
 
