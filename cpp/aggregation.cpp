@@ -39,38 +39,58 @@ std::vector<Trip> loadTripCSV(const std::string& path) {
     return tripVec;
 }
 
-std::unordered_map<std::string, int> countTripSequential(std::vector<Trip> tripVec) {
-    std::unordered_map<std::string, int> countMap;
+namespace std {
+    template <>
+    struct hash<std::pair<std::string, std::string>> {
+        size_t operator()(const std::pair<std::string, std::string>& k) const {
+            return hash<std::string>()(k.first) ^ (hash<std::string>()(k.second) << 1);
+        }
+    };
+}
 
+std::unordered_map<std::pair<std::string, std::string>, int> countTripSequential(std::vector<Trip> tripVec) {
+    std::unordered_map<std::pair<std::string, std::string>, int> countMap;
+
+    for (int i = 0; i < tripVec.size(); ++i) {
+        const Trip& trip = tripVec[i];
+        auto key = std::make_pair(trip.hour, trip.station_id);
+        countMap[key]++;
+    }
+
+	/*
     for (const auto& trip: tripVec) {
         std::string key = trip.hour + "-" + trip.station_id;
         countMap[key]++;
     }
+	**/
 
     return countMap;
 }
 
-std::unordered_map<std::string, int> countTripParallel(std::vector<Trip> tripVec) {
+std::unordered_map<std::pair<std::string, std::string>, int> countTripParallel(std::vector<Trip> tripVec) {
     int nThreads = omp_get_max_threads();
     std::cout << "Number of threads used: " << nThreads << std::endl;
-    std::vector<std::unordered_map<std::string, int>> countMapLocal(nThreads);
-    std::unordered_map<std::string, int> countMap;
+    std::vector<std::unordered_map<std::pair<std::string, std::string>, int>> countMapLocal(nThreads);
+    std::unordered_map<std::pair<std::string, std::string>, int> countMap;
 
     #pragma omp parallel
     {
-        int threadID = omp_get_thread_num();
-        auto& localMap = countMapLocal[threadID];
+
+		int threadID = omp_get_thread_num();
+		auto& localMap = countMapLocal[threadID];
 
         #pragma omp for
         for (int i = 0; i < tripVec.size(); i++) {
-            std::string key = tripVec[i].hour + "-" + tripVec[i].station_id;
+        	const Trip& trip = tripVec[i];
+        	auto key = std::make_pair(trip.hour, trip.station_id);            
+			//std::string key = tripVec[i].hour + "-" + tripVec[i].station_id;
             localMap[key]++;
         }
     }
 
     #pragma omp parallel
     {
-        std::unordered_map<std::string, int> localMerge;
+        std::unordered_map<std::pair<std::string, std::string>, int> localMerge;
 
         #pragma omp for nowait
         for (int i = 0; i < countMapLocal.size(); ++i) {
@@ -90,16 +110,15 @@ std::unordered_map<std::string, int> countTripParallel(std::vector<Trip> tripVec
     return countMap;
 }
 
-void writeToCSV(const std::unordered_map<std::string, int>& countMap, const std::string& path) {
+void writeToCSV(const std::unordered_map<std::pair<std::string, std::string>, int>& countMap, const std::string& path) {
     std::ofstream file;
     file.open(path);
 
     file << "hour,start_station_id,ride_count\n";
 
     for (const auto& [key, count]: countMap) {
-        auto delimIdx = key.find('-');
-        std::string hour = key.substr(0, delimIdx);
-        std::string station_id = key.substr(delimIdx + 1);
+        std::string hour = key.first;
+        std::string station_id = key.second;
         file << hour << "," << station_id << "," << count << "\n";
     }
 }
