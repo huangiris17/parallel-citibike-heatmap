@@ -3,9 +3,10 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <unordered_map>
+#include <tbb/concurrent_unordered_map.h>
 #include <chrono>
 #include <omp.h>
+#include <utility>
 
 struct Trip {
     std::string hour;
@@ -50,24 +51,27 @@ std::unordered_map<std::string, int> countTripSequential(std::vector<Trip> tripV
     return countMap;
 }
 
-std::unordered_map<std::string, int> countTripParallel(std::vector<Trip> tripVec) {
+namespace std {
+    template <>
+    struct hash<std::pair<std::string, std::string>> {
+        size_t operator()(const std::pair<std::string, std::string>& k) const {
+            return hash<std::string>()(k.first) ^ (hash<std::string>()(k.second) << 1);
+        }
+    };
+}
+tbb::concurrent_unordered_map<std::pair<std::string, std::string>, int> countTripParallel(std::vector<Trip> tripVec) {
     int nThreads = omp_get_max_threads();
     std::cout << "Number of threads used: " << nThreads << std::endl;
-    std::vector<std::unordered_map<std::string, int>> countMapLocal(nThreads);
-    std::unordered_map<std::string, int> countMap;
-
-    #pragma omp parallel
-    {
-        int threadID = omp_get_thread_num();
-        auto& localMap = countMapLocal[threadID];
+	tbb::concurrent_unordered_map<std::pair<std::string, std::string>, int> countMap;
 
         #pragma omp for
         for (int i = 0; i < tripVec.size(); i++) {
-            std::string key = tripVec[i].hour + "-" + tripVec[i].station_id;
-            localMap[key]++;
+			const Trip& trip = tripVec[i];   
+			auto key = std::make_pair(trip.hour, trip.station_id);            
+			localMap[key]++;
         }
-    }
-
+	
+	/*	
     #pragma omp parallel
     {
         std::unordered_map<std::string, int> localMerge;
@@ -86,6 +90,26 @@ std::unordered_map<std::string, int> countTripParallel(std::vector<Trip> tripVec
             }
         }
     }
+	**/
+
+	/*
+	#pragma omp parallel for
+	for (int i = 0; i < countMapLocal.size(); ++i) {
+    	for (const auto& [key, count] : countMapLocal[i]) {
+        	#pragma omp critical
+        	countMap[key] += count;
+    	}
+	}
+	**/
+	
+	/*	
+	for (const auto& localMap : countMapLocal) {
+ 	   for (const auto& [key, count] : localMap) {
+    	    countMap[key] += count;
+    	}
+	}
+	**/
+	
 
     return countMap;
 }

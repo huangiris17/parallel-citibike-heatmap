@@ -12,7 +12,7 @@ preprocess:
 
 # Build C++ code (delegate to cpp/Makefile)
 build:
-	g++-14 -std=c++17 -fopenmp cpp/aggregation.cpp -o aggregation
+	g++ -std=c++17 -fopenmp -ltbb cpp/aggregation.cpp -o aggregation
 
 # Run the C++ aggregation code
 run:
